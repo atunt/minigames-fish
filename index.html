@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed the Fish Mini-Game</title>
+    <style>
+        /* Basic styling for the game container */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f8ff; /* AliceBlue background for the page */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* The main container for the game and title */
+        #game-container {
+            width: 95%;
+            max-width: 800px;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0d47a1; /* Dark blue title */
+            margin-bottom: 15px;
+        }
+        /* The canvas where the game is rendered */
+        #fishTank {
+            background: linear-gradient(to bottom, #87ceeb, #4682b4); /* Skyblue to SteelBlue gradient */
+            cursor: pointer;
+            border-radius: 10px;
+            border: 3px solid #0d47a1;
+            display: block;
+            width: 100%;
+            /* Height will be set dynamically via JS to maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>Feed the Fish</h1>
+        <!-- The canvas element is where all the animation happens -->
+        <canvas id="fishTank"></canvas>
+    </div>
+
+    <script>
+        // --- Canvas and Context Setup ---
+        const canvas = document.getElementById('fishTank');
+        const ctx = canvas.getContext('2d');
+
+        // --- Game Configuration ---
+        const FISH_COUNT = 7; // How many fish in the tank
+        const FOOD_DURATION = 500; // How long food lasts (in frames)
+        const FISH_SIZE = 15; // Base size of the fish
+        const FOOD_SIZE = 3; // Size of food pellets
+
+        let fishArray = [];
+        let foodArray = [];
+        let canvasWidth, canvasHeight;
+
+        // --- Event Listener for Feeding ---
+        canvas.addEventListener('click', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            foodArray.push(new Food(x, y));
+        });
+
+        // --- Utility Functions ---
+        // Generates a random number within a range
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // Calculates distance between two points
+        function getDistance(x1, y1, x2, y2) {
+            let xDistance = x2 - x1;
+            let yDistance = y2 - y1;
+            return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+        }
+
+        // --- Classes for Game Objects ---
+
+        // The Food Class
+        class Food {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = FOOD_SIZE;
+                this.timer = FOOD_DURATION;
+            }
+
+            // Draw the food pellet
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = '#c68e17'; // A brownish, pellet-like color
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            // Update food timer
+            update() {
+                this.timer--;
+                this.draw();
+            }
+        }
+
+        // The Fish Class
+        class Fish {
+            constructor() {
+                this.size = random(FISH_SIZE * 0.8, FISH_SIZE * 1.5);
+                this.x = random(this.size, canvasWidth - this.size);
+                this.y = random(this.size, canvasHeight - this.size);
+                this.speedX = random(-1, 1);
+                this.speedY = random(-0.5, 0.5);
+                this.color = `hsl(${random(0, 360)}, 90%, 60%)`; // Random vibrant color
+                this.direction = 1; // 1 for right, -1 for left
+                this.targetFood = null;
+            }
+
+            // Draws a single fish
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                // Body
+                ctx.ellipse(this.x, this.y, this.size, this.size * 0.6, this.direction === 1 ? 0 : Math.PI, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Tail
+                ctx.beginPath();
+                ctx.moveTo(this.x - this.size * this.direction, this.y);
+                ctx.lineTo(this.x - this.size * 1.5 * this.direction, this.y - this.size * 0.6);
+                ctx.lineTo(this.x - this.size * 1.5 * this.direction, this.y + this.size * 0.6);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Eye
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x + this.size * 0.6 * this.direction, this.y - this.size * 0.1, this.size * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(this.x + this.size * 0.6 * this.direction, this.y - this.size * 0.1, this.size * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Updates the fish's position and behavior
+            update() {
+                // Determine direction based on horizontal speed
+                if (this.speedX !== 0) {
+                    this.direction = this.speedX > 0 ? 1 : -1;
+                }
+                
+                // Find the closest food
+                this.findFood();
+
+                if (this.targetFood) {
+                    // Move towards the food
+                    const dx = this.targetFood.x - this.x;
+                    const dy = this.targetFood.y - this.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+
+                    // Normalize the direction vector and move
+                    this.speedX = (dx / distance) * 2;
+                    this.speedY = (dy / distance) * 2;
+                    
+                    // Check if fish has "eaten" the food
+                    if(distance < this.size) {
+                        const foodIndex = foodArray.indexOf(this.targetFood);
+                        if(foodIndex > -1) {
+                            foodArray.splice(foodIndex, 1);
+                        }
+                        this.targetFood = null;
+                        // Give a little speed boost after eating
+                        this.speedX = random(-1.5, 1.5);
+                        this.speedY = random(-0.5, 0.5);
+                    }
+
+                } else {
+                     // Randomly change direction slightly for more natural movement
+                    if (Math.random() < 0.02) {
+                        this.speedX = random(-1, 1);
+                        this.speedY = random(-0.5, 0.5);
+                    }
+                }
+
+                // Update position
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Wall collision detection (bouncing off walls)
+                if (this.x + this.size > canvasWidth || this.x - this.size < 0) {
+                    this.speedX = -this.speedX;
+                }
+                if (this.y + this.size > canvasHeight || this.y - this.size < 0) {
+                    this.speedY = -this.speedY;
+                }
+
+                this.draw();
+            }
+
+            // Logic for a fish to find the nearest food source
+            findFood() {
+                if (foodArray.length === 0) {
+                    this.targetFood = null;
+                    return;
+                }
+
+                let closestFood = null;
+                let minDistance = Infinity;
+
+                for (let i = 0; i < foodArray.length; i++) {
+                    let distance = getDistance(this.x, this.y, foodArray[i].x, foodArray[i].y);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestFood = foodArray[i];
+                    }
+                }
+                this.targetFood = closestFood;
+            }
+        }
+
+        // --- Game Loop and Initialization ---
+
+        // Function to set canvas size and create initial fish
+        function init() {
+            // Set canvas size based on container width
+            const container = document.getElementById('game-container');
+            canvasWidth = container.clientWidth - 6; // Subtract border width
+            canvasHeight = canvasWidth * 0.6; // Maintain a 5:3 aspect ratio
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            fishArray = []; // Clear existing fish
+            for (let i = 0; i < FISH_COUNT; i++) {
+                fishArray.push(new Fish());
+            }
+            foodArray = []; // Clear food
+        }
+        
+        // The main animation loop that runs every frame
+        function animate() {
+            // Clear the canvas for the next frame
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Update and draw food
+            for (let i = foodArray.length - 1; i >= 0; i--) {
+                foodArray[i].update();
+                if (foodArray[i].timer <= 0) {
+                    foodArray.splice(i, 1); // Remove old food
+                }
+            }
+            
+            // Update and draw each fish
+            fishArray.forEach(fish => {
+                fish.update();
+            });
+
+            // Request the next frame
+            requestAnimationFrame(animate);
+        }
+        
+        // --- Start the Game ---
+        // Initialize and start the animation loop when the window loads.
+        // Also handle window resizing.
+        window.onload = () => {
+            init();
+            animate();
+        };
+
+        window.onresize = () => {
+            init();
+        };
+
+    </script>
+
+</body>
+</html>
