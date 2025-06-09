@@ -46,7 +46,7 @@ FOOD_DURATION: Increase or decrease this to change how long food pellets stay on
 
 FISH_SIZE: Adjust the base size of the fish.
 
-Check out our other projects and products at our shop: Atunt Shop
+Check out our other projects and products at our shop: Atunt Shop - https://atunt.com/shop/
 
 License
 This project is open-source and available under the MIT License.
