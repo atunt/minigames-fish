@@ -1,52 +1,36 @@
-# minigames-fish
-HTML code for Blogger or Wordpress
+# 🐟 Embeddable Blogspot Mini-Game: Feed the Fish
 
-Embeddable Blogspot Mini-Game: Feed the Fish
-This project provides a simple and delightful "Feed the Fish" mini-game created with HTML and JavaScript, designed to be easily embedded into any Blogspot post or page.
+A simple, fun, and lightweight **"Feed the Fish"** mini-game built with pure HTML, CSS, and JavaScript — no libraries, no frameworks. This game is designed to be **easily embedded** into any **Blogspot** post or page, making it a perfect way to add interactivity and charm to your blog.
 
-It offers a light, interactive distraction for your website visitors, perfect for keeping them engaged while they wait for notifications or simply to add a fun element to your blog.
+---
 
-Features
-Zero Dependencies: Runs entirely in the browser with no external libraries needed.
+## 🎮 Features
 
-Single File: All the code (HTML, CSS, JS) is in one file for easy copy-pasting.
+- ✅ **Zero Dependencies** – Runs entirely in the browser.
+- 🧩 **Single File** – HTML, CSS & JS all in one, ready to copy-paste.
+- 🐠 **Interactive** – Click to drop food and watch the fish respond.
+- 📱 **Responsive** – Canvas auto-resizes to fit any container.
+- 🎨 **Customizable** – Easily tweak fish count, colors, sizes, and more.
 
-Interactive: Click to drop food and watch the fish swim to eat it.
+---
 
-Responsive: The game canvas automatically resizes to fit its container.
+## ✍️ How to Embed in Blogspot
 
-Customizable: Easily change the number of fish, colors, and other parameters.
+1. **Copy the Code:** Open the `index.html` file and copy the entire content.
+2. **Login to Blogspot:** Go to your [Blogspot Dashboard](https://atunt.com/shop/).
+3. **Create/Edit a Post/Page:** Choose where to place the game.
+4. **Switch to HTML View:** Look for the `< >` icon or "HTML" tab in the editor.
+5. **Paste the Code:** Insert the copied code into the HTML editor.
+6. **Publish:** Save or publish your post — the game will appear live!
 
-How to Embed in Blogspot
-You can add this game to your blog in just a few steps:
+---
 
-Copy the Code: Open the index.html file in this repository and copy its entire content.
+## ⚙️ Customization
 
-Go to your Blogspot Dashboard: Log in to your Blogspot account.
+You can fine-tune the game by editing a few lines in the `<script>` section:
 
-Create or Edit a Post/Page: You can either create a new post/page or edit an existing one where you want the game to appear.
-
-Switch to HTML View: In the Blogspot editor, find and click the button that switches from "Compose view" to "HTML view". This usually looks like < >.
-
-Paste the Code: Paste the code you copied directly into the HTML editor.
-
-Publish: Save or publish your post/page. The "Feed the Fish" game will now be live on your blog!
-
-Customization
-You can easily tweak the game by changing the values in the "Game Configuration" section of the <script> tag in the HTML file.
-
+```javascript
 // --- Game Configuration ---
-const FISH_COUNT = 7; // How many fish in the tank
-const FOOD_DURATION = 500; // How long food lasts (in frames)
-const FISH_SIZE = 15; // Base size of the fish
-
-FISH_COUNT: Change this number to have more or fewer fish in your tank.
-
-FOOD_DURATION: Increase or decrease this to change how long food pellets stay on screen before disappearing.
-
-FISH_SIZE: Adjust the base size of the fish.
-
-Check out our other projects and products at our shop: Atunt Shop - https://atunt.com/shop/
-
-License
-This project is open-source and available under the MIT License.
+const FISH_COUNT = 7;       // Number of fish in the tank
+const FOOD_DURATION = 500;  // Duration food stays on screen (in frames)
+const FISH_SIZE = 15;       // Size of each fish
